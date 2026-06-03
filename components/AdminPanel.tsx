@@ -5,53 +5,58 @@ import { useContractWrite } from "@/hooks/useContractWrite";
 import { TxStatusBadge } from "./TxStatus";
 import { isAddress } from "viem";
 
-type Tab = "issue" | "mint" | "burn" | "setMaxDeviation";
+type AdminAction = "issue" | "mint" | "burn" | "setMaxDeviation";
 
 interface Props {
+  action: AdminAction;
   symbol?: string;
   decimals?: number;
-  initialTab?: Tab;
   onSuccess?: () => void;
 }
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "issue", label: "Issue" },
-  { id: "mint", label: "Mint" },
-  { id: "burn", label: "Burn" },
-  { id: "setMaxDeviation", label: "Max Deviation" },
-];
-
-const DESCRIPTIONS: Record<Tab, string> = {
+const DESCRIPTIONS: Record<AdminAction, string> = {
   issue: "Transfer tokens from the contract's own balance to an address. Requires SUPER_ADMIN.",
   mint: "Mint new tokens to an address. Affects peg deviation. Requires SUPER_ADMIN.",
   burn: "Burn tokens from an address. Affects peg deviation. Requires SUPER_ADMIN.",
   setMaxDeviation: "Set the maximum allowed peg deviation. Requires SUPER_ADMIN.",
 };
 
-export function AdminPanel({ symbol = "Token", decimals = 18, initialTab = "issue", onSuccess }: Props) {
-  const [tab, setTab] = useState<Tab>(initialTab);
+const BUTTON_LABELS: Record<AdminAction, string> = {
+  issue: "Issue Tokens",
+  mint: "Mint Tokens",
+  burn: "Burn Tokens",
+  setMaxDeviation: "Set Max Deviation",
+};
+
+const FIELD_LABELS: Record<AdminAction, string> = {
+  issue: "Amount",
+  mint: "Amount",
+  burn: "Amount",
+  setMaxDeviation: "Max Deviation",
+};
+
+export function AdminPanel({ action, symbol = "Token", decimals = 6, onSuccess }: Props) {
   const [targetAddress, setTargetAddress] = useState("");
   const [amount, setAmount] = useState("");
 
   const { issue, mint, burn, setMaxDeviation, status, txHash, error, reset } =
     useContractWrite();
 
+  const needsAddress = action !== "setMaxDeviation";
   const isValidAddress = targetAddress === "" || isAddress(targetAddress);
-  const needsAddress = tab !== "setMaxDeviation";
+  const isSubmitting = status === "pending" || status === "approving";
 
-  const handleTabChange = (t: Tab) => {
-    setTab(t);
-    setTargetAddress("");
-    setAmount("");
-    reset();
-  };
+  const isDisabled =
+    !amount ||
+    (needsAddress && !isAddress(targetAddress)) ||
+    isSubmitting;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (needsAddress && !isAddress(targetAddress)) return;
     if (!amount) return;
 
-    switch (tab) {
+    switch (action) {
       case "issue":
         await issue(targetAddress as `0x${string}`, amount, decimals);
         break;
@@ -68,33 +73,12 @@ export function AdminPanel({ symbol = "Token", decimals = 18, initialTab = "issu
     if (onSuccess) onSuccess();
   };
 
-  const isSubmitting = status === "pending" || status === "approving";
-  const isDisabled =
-    !amount ||
-    (needsAddress && !isAddress(targetAddress)) ||
-    isSubmitting;
+  // Reset fields when action changes
+  // (handled via key prop in parent)
 
   return (
     <div className="space-y-4">
-      {/* Sub-tabs */}
-      <div className="flex gap-1 bg-gray-800/50 rounded-lg p-1">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => handleTabChange(t.id)}
-            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              tab === t.id
-                ? "bg-gray-700 text-white"
-                : "text-gray-500 hover:text-gray-300"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      <p className="text-xs text-gray-500">{DESCRIPTIONS[tab]}</p>
+      <p className="text-xs text-gray-500">{DESCRIPTIONS[action]}</p>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         {needsAddress && (
@@ -115,7 +99,7 @@ export function AdminPanel({ symbol = "Token", decimals = 18, initialTab = "issu
 
         <div>
           <label className="label">
-            {tab === "setMaxDeviation" ? "Max Deviation" : "Amount"}{" "}
+            {FIELD_LABELS[action]}{" "}
             <span className="text-gray-600">({symbol})</span>
           </label>
           <input
@@ -131,18 +115,10 @@ export function AdminPanel({ symbol = "Token", decimals = 18, initialTab = "issu
 
         <button
           type="submit"
-          className={tab === "burn" ? "btn-danger" : "btn-primary"}
+          className={action === "burn" ? "btn-danger" : "btn-primary"}
           disabled={isDisabled}
         >
-          {isSubmitting
-            ? "Confirming..."
-            : tab === "issue"
-            ? "Issue Tokens"
-            : tab === "mint"
-            ? "Mint Tokens"
-            : tab === "burn"
-            ? "Burn Tokens"
-            : "Set Max Deviation"}
+          {isSubmitting ? "Confirming..." : BUTTON_LABELS[action]}
         </button>
 
         <TxStatusBadge status={status} txHash={txHash} error={error} />

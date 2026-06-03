@@ -31,13 +31,7 @@ const TABS: { id: ActiveTab; label: string; icon: string; adminOnly: boolean }[]
   { id: "setMaxDeviation", label: "Max Deviation",    icon: "⚖️", adminOnly: true  },
 ];
 
-// Map individual admin tabs to the sub-tab inside AdminPanel
-const ADMIN_TAB_MAP: Record<string, "issue" | "mint" | "burn" | "setMaxDeviation"> = {
-  issue: "issue",
-  mint: "mint",
-  burn: "burn",
-  setMaxDeviation: "setMaxDeviation",
-};
+// Map individual admin tabs to AdminPanel action prop
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -205,7 +199,7 @@ export default function Home() {
                     </h3>
                     <AdminPanel
                       key={activeTab}
-                      initialTab={ADMIN_TAB_MAP[activeTab]}
+                      action={activeTab as "issue" | "mint" | "burn" | "setMaxDeviation"}
                       symbol={data.symbol}
                       decimals={data.decimals}
                       onSuccess={handleSuccess}
