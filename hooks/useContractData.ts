@@ -1,7 +1,7 @@
 "use client";
 
 import { useReadContract, useReadContracts } from "wagmi";
-import { CONTRACT_ADDRESS } from "@/lib/config";
+import { CONTRACT_ADDRESS, LP_TOKEN_ADDRESS } from "@/lib/config";
 import { PEGGED_ASSET_ABI, ERC20_ABI } from "@/lib/abi";
 import { keccak256, toHex, zeroAddress } from "viem";
 
@@ -56,7 +56,10 @@ export function useContractData(address?: `0x${string}`) {
 
   const tokenAAddress = data?.[8]?.result as `0x${string}` | undefined;
   const tokenBAddress = data?.[9]?.result as `0x${string}` | undefined;
-  const pairAddress = data?.[10]?.result as `0x${string}` | undefined;
+  // pairAddress from contract may be zero before first addLiquidity call,
+  // so we always use the known LP_TOKEN_ADDRESS for balances and approvals
+  const pairAddressFromContract = data?.[10]?.result as `0x${string}` | undefined;
+  const pairAddress = LP_TOKEN_ADDRESS;
 
   const { data: tokenABalance } = useReadContract({
     address: tokenAAddress,
@@ -74,12 +77,13 @@ export function useContractData(address?: `0x${string}`) {
     query: { enabled: !!address && !!tokenBAddress && tokenBAddress !== zeroAddress },
   });
 
+  // LP balance always uses the known LP token address
   const { data: lpBalance } = useReadContract({
-    address: pairAddress,
+    address: LP_TOKEN_ADDRESS,
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: [address ?? zeroAddress],
-    query: { enabled: !!address && !!pairAddress && pairAddress !== zeroAddress },
+    query: { enabled: !!address },
   });
 
   const { data: tokenASymbol } = useReadContract({
@@ -107,7 +111,8 @@ export function useContractData(address?: `0x${string}`) {
     owner: data?.[7]?.result as `0x${string}` | undefined,
     tokenAAddress,
     tokenBAddress,
-    pairAddress,
+    pairAddress,              // always LP_TOKEN_ADDRESS
+    pairAddressFromContract,  // what the contract currently stores (may be zero)
     currentPeg: pegData as bigint | undefined,
     userBalance: userBalance as bigint | undefined,
     tokenABalance: tokenABalance as bigint | undefined,

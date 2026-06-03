@@ -115,6 +115,59 @@ export function StatsPanel({
 
   return (
     <div className="space-y-4">
+      {/* User balances — most important, shown first */}
+      {(userBalance !== undefined ||
+        tokenABalance !== undefined ||
+        tokenBBalance !== undefined ||
+        lpBalance !== undefined) && (
+        <div className="card border-blue-800/50">
+          <h2 className="section-title">
+            <span>💰</span> Your Balances
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            {userBalance !== undefined && (
+              <StatItem
+                label={symbol ?? "Token"}
+                value={formatAmount(userBalance, decimals, 4)}
+              />
+            )}
+            {tokenABalance !== undefined && (
+              <StatItem
+                label={tokenASymbol ?? "Token A"}
+                value={formatAmount(tokenABalance, tokenADec, 4)}
+              />
+            )}
+            {tokenBBalance !== undefined && (
+              <StatItem
+                label={tokenBSymbol ?? "Token B"}
+                value={formatAmount(tokenBBalance, tokenBDec, 4)}
+              />
+            )}
+            {lpBalance !== undefined && (
+              <StatItem
+                label="LP Tokens"
+                value={formatAmount(lpBalance, 18, 6)}
+              />
+            )}
+          </div>
+
+          {(isSuperAdmin || isAdmin) && (
+            <div className="mt-3 flex gap-2 flex-wrap">
+              {isSuperAdmin && (
+                <span className="px-2 py-1 text-xs rounded bg-purple-900 text-purple-300 font-medium">
+                  SUPER ADMIN
+                </span>
+              )}
+              {isAdmin && !isSuperAdmin && (
+                <span className="px-2 py-1 text-xs rounded bg-blue-900 text-blue-300 font-medium">
+                  ADMIN
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Contract info */}
       <div className="card">
         <h2 className="section-title">
@@ -181,59 +234,6 @@ export function StatsPanel({
           {pairAddress && <AddressRow label="LP Pair" address={pairAddress} />}
         </div>
       </div>
-
-      {/* User balances */}
-      {(userBalance !== undefined ||
-        tokenABalance !== undefined ||
-        tokenBBalance !== undefined ||
-        lpBalance !== undefined) && (
-        <div className="card">
-          <h2 className="section-title">
-            <span>💰</span> Your Balances
-          </h2>
-          <div className="grid grid-cols-2 gap-2">
-            {userBalance !== undefined && (
-              <StatItem
-                label={symbol ?? "Token"}
-                value={formatAmount(userBalance, decimals, 4)}
-              />
-            )}
-            {tokenABalance !== undefined && (
-              <StatItem
-                label={tokenASymbol ?? "Token A"}
-                value={formatAmount(tokenABalance, tokenADec, 4)}
-              />
-            )}
-            {tokenBBalance !== undefined && (
-              <StatItem
-                label={tokenBSymbol ?? "Token B"}
-                value={formatAmount(tokenBBalance, tokenBDec, 4)}
-              />
-            )}
-            {lpBalance !== undefined && (
-              <StatItem
-                label="LP Tokens"
-                value={formatAmount(lpBalance, 18, 6)}
-              />
-            )}
-          </div>
-
-          {(isSuperAdmin || isAdmin) && (
-            <div className="mt-3 flex gap-2 flex-wrap">
-              {isSuperAdmin && (
-                <span className="px-2 py-1 text-xs rounded bg-purple-900 text-purple-300 font-medium">
-                  SUPER ADMIN
-                </span>
-              )}
-              {isAdmin && !isSuperAdmin && (
-                <span className="px-2 py-1 text-xs rounded bg-blue-900 text-blue-300 font-medium">
-                  ADMIN
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

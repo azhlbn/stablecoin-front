@@ -7,6 +7,9 @@ export const CONTRACT_ADDRESS =
   (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`) ||
   "0x0000000000000000000000000000000000000000";
 
+// Uniswap V2 LP pair address (USDC/USDT)
+export const LP_TOKEN_ADDRESS: `0x${string}` = "0xDeae1ff5282D83AAdd42f85c57F6e69a037bf7Cd";
+
 export const ARBITRUM_EXPLORER = "https://arbiscan.io";
 
 export const wagmiConfig = getDefaultConfig({
