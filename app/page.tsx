@@ -69,7 +69,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
           {/* Left — stats */}
           <div>
-            <StatsPanel {...data} />
+            <StatsPanel {...data} isConnected={isConnected} />
           </div>
 
           {/* Right — actions */}
@@ -173,6 +173,7 @@ export default function Home() {
                     <AddLPForm
                       pairAddress={data.pairAddress}
                       lpBalance={data.lpBalance}
+                      lpDecimals={data.lpDecimals}
                       userAddress={address}
                       onSuccess={handleSuccess}
                     />

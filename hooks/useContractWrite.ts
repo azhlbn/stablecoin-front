@@ -145,7 +145,7 @@ export function useContractWrite() {
     liquidity: string,
     pairAddress: `0x${string}`,
     userAddress: `0x${string}`,
-    decimals: number = 18
+    decimals: number = 6
   ) {
     try {
       reset();

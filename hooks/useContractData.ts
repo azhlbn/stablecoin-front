@@ -86,6 +86,9 @@ export function useContractData(address?: `0x${string}`) {
     query: { enabled: !!address },
   });
 
+  // This LP token uses 6 decimals (same as the stablecoins in the pool)
+  const lpDecimals = 6;
+
   const { data: tokenASymbol } = useReadContract({
     address: tokenAAddress,
     abi: ERC20_ABI,
@@ -118,6 +121,7 @@ export function useContractData(address?: `0x${string}`) {
     tokenABalance: tokenABalance as bigint | undefined,
     tokenBBalance: tokenBBalance as bigint | undefined,
     lpBalance: lpBalance as bigint | undefined,
+    lpDecimals: 6,
     tokenASymbol: tokenASymbol as string | undefined,
     tokenBSymbol: tokenBSymbol as string | undefined,
     isSuperAdmin: isSuperAdmin as boolean | undefined,

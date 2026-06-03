@@ -8,6 +8,7 @@ import { formatAmount } from "@/lib/utils";
 interface Props {
   pairAddress?: `0x${string}`;
   lpBalance?: bigint;
+  lpDecimals?: number;
   userAddress?: `0x${string}`;
   onSuccess?: () => void;
 }
@@ -15,6 +16,7 @@ interface Props {
 export function AddLPForm({
   pairAddress,
   lpBalance,
+  lpDecimals = 6,
   userAddress,
   onSuccess,
 }: Props) {
@@ -27,7 +29,7 @@ export function AddLPForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pairAddress || !userAddress) return;
-    await addLP(liquidity, pairAddress, userAddress);
+    await addLP(liquidity, pairAddress, userAddress, lpDecimals);
     if (onSuccess) onSuccess();
   };
 
@@ -48,7 +50,7 @@ export function AddLPForm({
           {lpBalance !== undefined && (
             <button
               type="button"
-              onClick={() => setLiquidity(formatAmount(lpBalance, 18))}
+              onClick={() => setLiquidity(formatAmount(lpBalance, lpDecimals))}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-blue-400 hover:text-blue-300"
             >
               MAX
@@ -57,7 +59,7 @@ export function AddLPForm({
         </div>
         {lpBalance !== undefined && (
           <p className="text-xs text-gray-500 mt-1">
-            LP Balance: {formatAmount(lpBalance, 18)}
+            LP Balance: {formatAmount(lpBalance, lpDecimals)}
           </p>
         )}
       </div>

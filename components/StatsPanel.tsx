@@ -22,9 +22,11 @@ interface Props {
   tokenABalance?: bigint;
   tokenBBalance?: bigint;
   lpBalance?: bigint;
+  lpDecimals?: number;
   isSuperAdmin?: boolean;
   isAdmin?: boolean;
   isLoading?: boolean;
+  isConnected?: boolean;
 }
 
 function StatItem({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -79,9 +81,11 @@ export function StatsPanel({
   tokenABalance,
   tokenBBalance,
   lpBalance,
+  lpDecimals = 6,
   isSuperAdmin,
   isAdmin,
   isLoading,
+  isConnected,
 }: Props) {
   if (isLoading) {
     return (
@@ -116,39 +120,28 @@ export function StatsPanel({
   return (
     <div className="space-y-4">
       {/* User balances — most important, shown first */}
-      {(userBalance !== undefined ||
-        tokenABalance !== undefined ||
-        tokenBBalance !== undefined ||
-        lpBalance !== undefined) && (
+      {isConnected && (
         <div className="card border-blue-800/50">
           <h2 className="section-title">
             <span>💰</span> Your Balances
           </h2>
           <div className="grid grid-cols-2 gap-2">
-            {userBalance !== undefined && (
-              <StatItem
-                label={symbol ?? "Token"}
-                value={formatAmount(userBalance, decimals, 4)}
-              />
-            )}
-            {tokenABalance !== undefined && (
-              <StatItem
-                label={tokenASymbol ?? "Token A"}
-                value={formatAmount(tokenABalance, tokenADec, 4)}
-              />
-            )}
-            {tokenBBalance !== undefined && (
-              <StatItem
-                label={tokenBSymbol ?? "Token B"}
-                value={formatAmount(tokenBBalance, tokenBDec, 4)}
-              />
-            )}
-            {lpBalance !== undefined && (
-              <StatItem
-                label="LP Tokens"
-                value={formatAmount(lpBalance, 18, 6)}
-              />
-            )}
+            <StatItem
+              label={symbol ?? "Token"}
+              value={userBalance !== undefined ? formatAmount(userBalance, decimals, 4) : "…"}
+            />
+            <StatItem
+              label={tokenASymbol ?? "Token A"}
+              value={tokenABalance !== undefined ? formatAmount(tokenABalance, tokenADec, 4) : "…"}
+            />
+            <StatItem
+              label={tokenBSymbol ?? "Token B"}
+              value={tokenBBalance !== undefined ? formatAmount(tokenBBalance, tokenBDec, 4) : "…"}
+            />
+            <StatItem
+              label="LP Tokens"
+              value={lpBalance !== undefined ? formatAmount(lpBalance, lpDecimals, 6) : "…"}
+            />
           </div>
 
           {(isSuperAdmin || isAdmin) && (
