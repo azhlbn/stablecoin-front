@@ -103,6 +103,14 @@ export const PEGGED_ASSET_ABI = [
     stateMutability: "view",
     type: "function",
   },
+  // getAmountTokenB
+  {
+    inputs: [{ name: "_amountTokenA", type: "uint256" }],
+    name: "getAmountTokenB",
+    outputs: [{ name: "_amountTokenB", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
   // addLiquidity
   {
     inputs: [{ name: "usdtAmount", type: "uint256" }],
